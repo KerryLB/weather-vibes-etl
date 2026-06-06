@@ -1,4 +1,4 @@
-# Weather Vibes ETL Pipeline and Dashboard
+## Weather Vibes ETL Pipeline and Dashboard
 
 An end-to-end data engineering project that extracts 7-day weather forecast data for Louisville, KY from the Open-Meteo API, applies transformation and data quality checks, loads results into a normalized SQLite database, exports analytics-ready CSV files, and powers an interactive Power BI dashboard.
 
@@ -224,12 +224,5 @@ The Power BI dashboard communicates the following business insights:
 - **Vibe forecast table** — emoji, vibe name, description, and trigger parameters for each day in the forecast
 - **Fit recommendations table** — emoji, vibe name, outfit, and accessory for each day
 - **Vibe slicer** — filters all visuals dynamically by weather vibe
-
-### Dashboard screenshots
-
-*Screenshot 1: Full 7-day dashboard view*
-*Screenshot 2: Dashboard filtered to Lo-Fi Chill Day via the Vibe slicer*
-
-
-#   w e a t h e r - v i b e s - e t l  
+ 
  
