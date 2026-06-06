@@ -14,20 +14,22 @@ This pipeline uses SQLite as its database backend. Due to project timeline const
 
 The complete ETL workflow — extraction, transformation, validation, loading, and CSV export — is implemented in a single Python script. This was an intentional design choice to keep the pipeline self-contained, reproducible, and easy to execute. The script is modular with clearly separated functions for each pipeline stage, following the same organizational principles as a multi-file ETL framework.
 
-### Schema Design: Normalized to Star
+### Schema Design: Normalized Database + Star Schema Analytics
 
-The database schema was designed in two layers, reflecting the course content on normalized vs star schemas:
+The project uses a two-layer schema design reflecting course content on normalized vs star schemas:
 
-**Normalized layer (database storage):**
-- `weather_forecast` — fact table with core metrics
-- `vibe_dimension` — dimension table with vibe labels, descriptions, parameters, and emojis
-- `fit_recommendations` — dimension table with outfit and accessory recommendations
-- `forecast_vibe` — bridge table linking forecasts to vibes and fits via foreign keys
+**Layer 1 — Normalized database (weather.db):**
+- `weather_forecast` — fact table with core daily metrics
+- `vibe_dimension` — dimension table with all 11 vibe labels, descriptions, parameters, and emojis
+- `fit_recommendations` — dimension table with all 11 outfit and accessory recommendations
+- `forecast_vibe` — bridge table linking forecasts to vibes and fits via 3 foreign keys
 
-**Star schema layer (analytics):**
-- `forecast_fits.csv` — a flat denormalized join of the current 7-day forecast with all vibe and fit fields pre-joined. This is the primary Power BI data source and functions as the center of the star schema in the dashboard data model.
+**Layer 2 — Star schema analytics (Power BI):**
+- `forecast_fits.csv` — a flat denormalized join of the current 7-day forecast with explicit `forecast_fits_id` (PK), `vibe_id` (FK), and `fit_id` (FK) columns, plus all weather metrics, vibe fields, and fit fields pre-joined. This is the primary Power BI fact table.
+- `vibe_dimension.csv` — dimension table containing all 11 vibes for the full reference card
+- `fit_recommendations.csv` — dimension table containing all 11 fits for the full reference card
 
-This approach demonstrates both normalization concepts for data integrity and denormalization for analytics performance — a deliberate architectural decision rather than a limitation.
+This approach demonstrates both normalization for data integrity and denormalization for analytics performance.
 
 ---
 
@@ -39,15 +41,21 @@ weather-vibes-etl/
 ├── requirements.txt              # Python dependencies
 ├── README.md                     # This file
 ├── CHANGELOG.md                  # Full record of changes from original script
+├── .gitignore                    # Excludes data/ directory from version control
 ├── vibe_guide.txt                # Vibe and fit reference card for Power BI text box
-├── Weather_Vibes_ERD.html        # Entity relationship diagram with PK/FK indicators
-├── weather_vibes_data_flow.html  # ETL pipeline data flow diagram
-├── weather.db                    # SQLite database (auto-created on first run)
-├── weather_forecast.csv          # Core forecast metrics table
-├── vibe_dimension.csv            # All 11 vibe labels, descriptions, parameters, and emojis
-├── fit_recommendations.csv       # All 11 outfit and accessory recommendations
-├── forecast_vibe.csv             # Bridge table linking forecasts to vibes and fits
-└── forecast_fits.csv             # Flat joined table — primary Power BI data source
+├── docs/
+│   ├── Weather_Vibes_ERD.html        # ERD — normalized schema and Power BI star schema
+│   ├── Weather_Vibes_ERD.pdf         # PDF version of ERD for BRD
+│   ├── weather_vibes_data_flow.pdf   # ETL pipeline data flow diagram
+│   ├── Basham_Kerry_DataEngineering_Project_Proposal_UPDATED.docx
+│   └── Basham_Kerry_Weather_Vibes_Database_Schema_Documentation_UPDATED.docx
+└── data/                         # Auto-created by pipeline — excluded from Git
+    ├── weather.db                    # SQLite database
+    ├── weather_forecast.csv          # Normalized fact table (DB documentation)
+    ├── vibe_dimension.csv            # All 11 vibes — Power BI dimension table
+    ├── fit_recommendations.csv       # All 11 fits — Power BI dimension table
+    ├── forecast_vibe.csv             # Bridge table (DB documentation)
+    └── forecast_fits.csv             # Star schema fact table — primary Power BI source
 ```
 
 ---
@@ -85,18 +93,18 @@ python weather_vibes_app.py
 
 The script executes all pipeline stages automatically:
 
-1. **Extract** — Fetches 7-day daily forecast from Open-Meteo API (Louisville, KY) with retry logic and response caching
+1. **Extract** — Fetches 7-day daily forecast from Open-Meteo API (Louisville, KY) with retry logic and response caching. All outputs written to `data/`.
 2. **Transform** — Casts data types, fills NaN values, rounds temperatures to whole numbers, derives `temp_range_f` and `weather_vibe` using dominance-first classification logic
 3. **Validate** — Runs 7 named data quality checks with PASS/FAIL logging
-4. **Load** — Writes a 4-table normalized schema to `weather.db` via SQLAlchemy
+4. **Load** — Writes a 4-table normalized schema to `data/weather.db` via SQLAlchemy
 5. **Inspect** — Logs table previews to confirm successful load
-6. **Export** — Produces 5 CSV files including `forecast_fits.csv`, a flat joined analytics table
+6. **Export** — Produces 5 CSV files in `data/` including `forecast_fits.csv` with explicit PK and FK columns
 
 ---
 
 ## Weather Vibe Classification
 
-The pipeline classifies each forecast day into one of 11 weather vibes using dominance-first logic. The classification uses four inputs: apparent temperature max, precipitation sum, precipitation hours, and max wind speed.
+The pipeline classifies each forecast day into one of 11 weather vibes using dominance-first logic with four inputs: apparent temperature max, precipitation sum, precipitation hours, and max wind speed.
 
 | Vibe | Emoji | Trigger Conditions |
 |---|---|---|
@@ -116,7 +124,7 @@ Meaningful rain = precipitation >= 0.10 inches OR precipitation hours >= 2
 
 ---
 
-## Database Schema
+## Database Schema (Normalized Layer)
 
 ### `weather_forecast`
 | Column | Type | Description |
@@ -135,7 +143,7 @@ Meaningful rain = precipitation >= 0.10 inches OR precipitation hours >= 2
 | Column | Type | Description |
 |---|---|---|
 | vibe_id | INTEGER (PK) | Auto-generated primary key |
-| vibe_name | TEXT | Unique weather vibe label |
+| vibe_name | TEXT UNIQUE | Unique weather vibe label |
 | vibe_description | TEXT | Fun personality-driven description |
 | vibe_parameters | TEXT | Technical weather conditions that trigger the vibe |
 | vibe_emoji | TEXT | Emoji icon for dashboard display |
@@ -144,20 +152,57 @@ Meaningful rain = precipitation >= 0.10 inches OR precipitation hours >= 2
 | Column | Type | Description |
 |---|---|---|
 | fit_id | INTEGER (PK) | Auto-generated primary key |
-| vibe_name | TEXT | Vibe label this outfit corresponds to |
+| vibe_name | TEXT UNIQUE | Vibe label this outfit corresponds to |
 | fit | TEXT | Unisex outfit recommendation |
 | accessory | TEXT | Accessory callout for the day |
 | fit_emoji | TEXT | Emoji icon for dashboard display |
 
-### `forecast_vibe` (bridge table)
+### `forecast_vibe` (bridge table — DB documentation only, not used in Power BI)
 | Column | Type | Description |
 |---|---|---|
 | forecast_id | INTEGER (FK) | References weather_forecast |
 | vibe_id | INTEGER (FK) | References vibe_dimension |
 | fit_id | INTEGER (FK) | References fit_recommendations |
 
-### `forecast_fits` (flat analytics export)
-A joined CSV produced at export time. Contains only the 7 forecasted days with all weather metrics, vibe label, vibe description, vibe parameters, outfit, accessory, and emojis in one flat file. This is the primary Power BI data source.
+---
+
+## Analytics Schema (Power BI Star Schema)
+
+### `forecast_fits` (primary Power BI fact table)
+
+A flat joined CSV produced at export time containing only the 7 forecasted days. Includes explicit PK and FK columns for a proper star schema in Power BI.
+
+| Column | Type | Description |
+|---|---|---|
+| forecast_fits_id | INTEGER (PK) | Surrogate primary key |
+| vibe_id | INTEGER (FK) | References vibe_dimension.vibe_id |
+| fit_id | INTEGER (FK) | References fit_recommendations.fit_id |
+| date | TEXT | Forecast date |
+| apparent_temperature_max | INTEGER | Max apparent temp (F) |
+| apparent_temperature_min | INTEGER | Min apparent temp (F) |
+| temp_range_f | INTEGER | Daily temperature range (F) |
+| precipitation_sum | REAL | Total precipitation (inches) |
+| precipitation_hours | REAL | Hours of precipitation |
+| wind_speed_10m_max | REAL | Max wind speed (mph) |
+| weather_vibe | TEXT | Vibe label |
+| vibe_emoji | TEXT | Vibe emoji |
+| vibe_description | TEXT | Vibe description |
+| vibe_parameters | TEXT | Vibe trigger conditions |
+| fit | TEXT | Outfit recommendation |
+| accessory | TEXT | Accessory callout |
+| fit_emoji | TEXT | Fit emoji |
+
+---
+
+## CSV Export Reference
+
+| File | Power BI | Purpose |
+|---|---|---|
+| `forecast_fits.csv` | Yes — fact table | Primary dashboard source. 7 rows, all fields pre-joined, explicit PK and FK |
+| `vibe_dimension.csv` | Yes — dimension | Full 11-vibe reference. Use for the vibe guide card and slicer |
+| `fit_recommendations.csv` | Yes — dimension | Full 11-fit reference. Use for the outfit guide card |
+| `weather_forecast.csv` | No | Normalized fact table exported for DB documentation |
+| `forecast_vibe.csv` | No | Bridge table exported for DB documentation |
 
 ---
 
@@ -183,64 +228,53 @@ This pipeline uses a full reload strategy by design. Open-Meteo returns a rollin
 
 ## Loading Data into Power BI
 
-### Recommended import strategy
+### Import these 3 files only
 
-Import only these three files:
+| File | Role |
+|---|---|
+| `data/forecast_fits.csv` | Fact table — center of the star schema |
+| `data/vibe_dimension.csv` | Dimension table |
+| `data/fit_recommendations.csv` | Dimension table |
 
-| File | Role | Purpose |
-|---|---|---|
-| `forecast_fits.csv` | Fact table | Primary dashboard table — current 7-day forecast with vibe and fit pre-joined |
-| `vibe_dimension.csv` | Dimension table | Full 11-vibe reference including vibes not in the current forecast |
-| `fit_recommendations.csv` | Dimension table | Full 11-fit reference for the outfit guide |
+### Relationships in Model view
 
-### Power BI data model (star schema)
-
-After importing, set up two relationships in Model view:
-
-- `forecast_fits[weather_vibe]` → `vibe_dimension[vibe_name]` — Many to One, Single cross-filter direction
-- `forecast_fits[weather_vibe]` → `fit_recommendations[vibe_name]` — Many to One, Single cross-filter direction
-
-This produces a clean 3-table star schema with `forecast_fits` as the center fact table.
+- `forecast_fits[vibe_id]` → `vibe_dimension[vibe_id]` — Many to One, Single cross-filter
+- `forecast_fits[fit_id]` → `fit_recommendations[fit_id]` — Many to One, Single cross-filter
 
 ### Step by step import
 
 1. Open Power BI Desktop
 2. Click **Home → Get Data → Text/CSV**
 3. Import `forecast_fits.csv`, then repeat for `vibe_dimension.csv` and `fit_recommendations.csv`
-4. Go to **Model** view and create the two relationships above
+4. Go to **Model** view and create the two relationships above using the explicit FK columns
 5. Switch to **Report** view and build visuals
 
 ### Refreshing data
 
-Re-run `weather_vibes_app.py` to pull a fresh forecast, then click **Home → Refresh** in Power BI to update all visuals.
+Re-run `weather_vibes_app.py` to pull a fresh forecast, then click **Home → Refresh** in Power BI.
 
 ---
 
 ## Documentation Artifacts
 
-The following diagram files are included in the repository for BRD and documentation purposes. Open in any browser and use the full-page screenshot tool (`Ctrl+Shift+P` in Chrome) to export clean images.
-
 | File | Description |
 |---|---|
-| `Weather_Vibes_ERD.html` | Entity relationship diagram showing all 5 tables with primary key (PK) and foreign key (FK) indicators, column names, data types, cardinality labels, and both the normalized and analytics layers |
-| `weather_vibes_data_flow.html` | ETL pipeline data flow diagram showing all 6 pipeline stages from API extraction through Power BI, including the 4-table database schema, bridge table connections, and all 5 CSV exports |
+| `docs/Weather_Vibes_ERD.html` | Two-section ERD — Section 1 shows the normalized DB schema with PK/FK indicators; Section 2 shows the Power BI star schema with 3 tables |
+| `docs/Weather_Vibes_ERD.pdf` | PDF version for BRD embedding |
+| `docs/weather_vibes_data_flow.pdf` | ETL pipeline data flow diagram |
 
 ---
 
 ## Dashboard Overview
 
-The Power BI dashboard communicates the following business insights:
-
-- **Temperature trend** — 7-day line chart showing daily high and low temps with vibe emojis as data point labels
-- **Vibe distribution** — bar chart showing how many days this week fall into each vibe category
-- **KPI cards** — average high temp, average low temp, total precipitation, and average wind speed
-- **Vibe forecast table** — emoji, vibe name, description, and trigger parameters for each day in the forecast
-- **Fit recommendations table** — emoji, vibe name, outfit, and accessory for each day
+- **Temperature trend** — 7-day line chart showing daily high and low temps with vibe emojis
+- **Vibe distribution** — bar chart showing how many days fall into each vibe category
+- **KPI cards** — average high temp, average low temp, total precipitation, average wind speed
+- **Vibe forecast table** — emoji, vibe name, description, and trigger parameters per day
+- **Fit recommendations table** — emoji, vibe name, outfit, and accessory per day
 - **Vibe slicer** — filters all visuals dynamically by weather vibe
 
 ### Dashboard screenshots
 
 *Screenshot 1: Full 7-day dashboard view*
 *Screenshot 2: Dashboard filtered to Lo-Fi Chill Day via the Vibe slicer*
-
-
