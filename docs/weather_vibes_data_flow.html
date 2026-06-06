@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Vibes ETL — Data Flow Diagram</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px 60px;
+    }
+    h1 { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; text-align: center; }
+    p.sub { font-size: 13px; color: #6b6b6b; margin-bottom: 32px; text-align: center; }
+    svg { max-width: 780px; width: 100%; display: block; margin: 0 auto; }
+    .tt  { font-size: 13px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .st  { font-size: 10.5px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .sl  { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .lbl { font-size: 9.5px; fill: #888780; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  </style>
+</head>
+<body>
+  <h1>Weather Vibes ETL Pipeline</h1>
+  <p class="sub">End-to-End Data Flow Diagram &nbsp;|&nbsp; Louisville, KY 7-Day Forecast &nbsp;|&nbsp; Developer: Kerry Basham</p>
+
+<svg viewBox="0 0 780 1180" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- ─────────────────────────────────────────
+     SECTION LABELS (left rail)
+───────────────────────────────────────── -->
+<text class="sl" x="18" y="75"   fill="#185FA5" transform="rotate(-90,18,75)">EXTRACT</text>
+<text class="sl" x="18" y="200"  fill="#0F6E56" transform="rotate(-90,18,200)">TRANSFORM</text>
+<text class="sl" x="18" y="375"  fill="#854F0B" transform="rotate(-90,18,375)">VALIDATE</text>
+<text class="sl" x="18" y="530"  fill="#534AB7" transform="rotate(-90,18,530)">LOAD</text>
+<text class="sl" x="18" y="700"  fill="#444441" transform="rotate(-90,18,700)">SCHEMA</text>
+<text class="sl" x="18" y="960"  fill="#3B6D11" transform="rotate(-90,18,960)">EXPORT</text>
+<text class="sl" x="18" y="1120" fill="#993C1D" transform="rotate(-90,18,1120)">ANALYTICS</text>
+
+<!-- ─────────────────────────────────────────
+     1. EXTRACT
+───────────────────────────────────────── -->
+<rect x="180" y="30" width="420" height="82" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+<text class="tt" x="390" y="58"  text-anchor="middle" dominant-baseline="central" fill="#0C447C">Extract — Open-Meteo API</text>
+<text class="st" x="390" y="78"  text-anchor="middle" dominant-baseline="central" fill="#185FA5">Louisville, KY 7-day forecast — no API key required</text>
+<text class="st" x="390" y="96"  text-anchor="middle" dominant-baseline="central" fill="#185FA5">5-retry logic — 1-hour cache in data/.cache — API response validation</text>
+
+<line x1="390" y1="112" x2="390" y2="140" stroke="#888780" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+<text class="lbl" x="398" y="130">6 daily variables: temp max/min, precip sum/hours, wind, weather code</text>
+
+<!-- ─────────────────────────────────────────
+     2. TRANSFORM
+───────────────────────────────────────── -->
+<rect x="160" y="140" width="460" height="140" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+<text class="tt" x="390" y="164" text-anchor="middle" dominant-baseline="central" fill="#085041">Transform and Clean</text>
+<text class="st" x="390" y="184" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">Cast float32 to float64 — detect and fill NaN values</text>
+<text class="st" x="390" y="202" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">Round temps to whole integers — precip and wind retain decimals</text>
+<text class="st" x="390" y="220" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">Derive temp_range_f (max minus min)</text>
+<text class="st" x="390" y="238" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">Assign weather_vibe — dominance-first logic, 4 inputs, 11 vibes</text>
+<text class="st" x="390" y="256" text-anchor="middle" dominant-baseline="central" fill="#085041">VIBE_DEFINITIONS + FIT_RECOMMENDATIONS loaded from module constants</text>
+
+<line x1="390" y1="280" x2="390" y2="308" stroke="#888780" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- ─────────────────────────────────────────
+     3. VALIDATE
+───────────────────────────────────────── -->
+<rect x="160" y="308" width="460" height="148" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+<text class="tt" x="390" y="332" text-anchor="middle" dominant-baseline="central" fill="#633806">Validate — 7 Named Quality Checks</text>
+<text class="st" x="390" y="352" text-anchor="middle" dominant-baseline="central" fill="#854F0B">1. Null check — 2. Duplicate date detection</text>
+<text class="st" x="390" y="370" text-anchor="middle" dominant-baseline="central" fill="#854F0B">3. Row count (expects 7) — 4. Temperature range (-50F to 130F)</text>
+<text class="st" x="390" y="388" text-anchor="middle" dominant-baseline="central" fill="#854F0B">5. Precipitation non-negative — 6. Schema dtypes (int64 / float64)</text>
+<text class="st" x="390" y="406" text-anchor="middle" dominant-baseline="central" fill="#854F0B">7. Vibe completeness — all rows labeled</text>
+<text class="st" x="390" y="426" text-anchor="middle" dominant-baseline="central" fill="#633806">Each check logs PASS or FAIL — pipeline halts on any failure</text>
+
+<line x1="390" y1="456" x2="390" y2="484" stroke="#888780" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- ─────────────────────────────────────────
+     4. LOAD
+───────────────────────────────────────── -->
+<rect x="160" y="484" width="460" height="62" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+<text class="tt" x="390" y="508" text-anchor="middle" dominant-baseline="central" fill="#3C3489">Load — SQLite via SQLAlchemy</text>
+<text class="st" x="390" y="528" text-anchor="middle" dominant-baseline="central" fill="#534AB7">Full reload strategy — drops and recreates tables on each run — written to data/weather.db</text>
+
+<!-- arrows from Load to 4 schema tables -->
+<line x1="270" y1="546" x2="145" y2="588" stroke="#888780" stroke-width="1.2" fill="none" marker-end="url(#arr)"/>
+<line x1="340" y1="546" x2="320" y2="588" stroke="#888780" stroke-width="1.2" fill="none" marker-end="url(#arr)"/>
+<line x1="440" y1="546" x2="460" y2="588" stroke="#888780" stroke-width="1.2" fill="none" marker-end="url(#arr)"/>
+<line x1="510" y1="546" x2="635" y2="588" stroke="#888780" stroke-width="1.2" fill="none" marker-end="url(#arr)"/>
+
+<!-- ─────────────────────────────────────────
+     5. SCHEMA — 4 TABLES
+───────────────────────────────────────── -->
+
+<!-- weather_forecast -->
+<rect x="38" y="588" width="190" height="108" rx="6" fill="#F1EFE8" stroke="#185FA5" stroke-width="0.8"/>
+<text class="tt"  x="133" y="610" text-anchor="middle" dominant-baseline="central" fill="#185FA5">weather_forecast</text>
+<line x1="38" y1="620" x2="228" y2="620" stroke="#185FA5" stroke-width="0.4"/>
+<text class="st" x="133" y="634" text-anchor="middle" dominant-baseline="central" fill="#444">PK: forecast_id</text>
+<text class="st" x="133" y="650" text-anchor="middle" dominant-baseline="central" fill="#444">date, temp max/min</text>
+<text class="st" x="133" y="666" text-anchor="middle" dominant-baseline="central" fill="#444">precip sum/hours, wind</text>
+<text class="st" x="133" y="682" text-anchor="middle" dominant-baseline="central" fill="#444">temp_range_f, weather_vibe</text>
+
+<!-- vibe_dimension -->
+<rect x="245" y="588" width="176" height="108" rx="6" fill="#F1EFE8" stroke="#0F6E56" stroke-width="0.8"/>
+<text class="tt"  x="333" y="610" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">vibe_dimension</text>
+<line x1="245" y1="620" x2="421" y2="620" stroke="#0F6E56" stroke-width="0.4"/>
+<text class="st" x="333" y="634" text-anchor="middle" dominant-baseline="central" fill="#444">PK: vibe_id</text>
+<text class="st" x="333" y="650" text-anchor="middle" dominant-baseline="central" fill="#444">vibe_name (UNIQUE)</text>
+<text class="st" x="333" y="666" text-anchor="middle" dominant-baseline="central" fill="#444">vibe_description</text>
+<text class="st" x="333" y="682" text-anchor="middle" dominant-baseline="central" fill="#444">vibe_parameters, emoji</text>
+
+<!-- fit_recommendations -->
+<rect x="438" y="588" width="176" height="108" rx="6" fill="#F1EFE8" stroke="#854F0B" stroke-width="0.8"/>
+<text class="tt"  x="526" y="606" text-anchor="middle" dominant-baseline="central" fill="#854F0B">fit_recommendations</text>
+<line x1="438" y1="618" x2="614" y2="618" stroke="#854F0B" stroke-width="0.4"/>
+<text class="st" x="526" y="632" text-anchor="middle" dominant-baseline="central" fill="#444">PK: fit_id</text>
+<text class="st" x="526" y="648" text-anchor="middle" dominant-baseline="central" fill="#444">vibe_name (UNIQUE)</text>
+<text class="st" x="526" y="664" text-anchor="middle" dominant-baseline="central" fill="#444">fit, accessory</text>
+<text class="st" x="526" y="680" text-anchor="middle" dominant-baseline="central" fill="#444">fit_emoji</text>
+
+<!-- forecast_vibe bridge -->
+<rect x="628" y="588" width="120" height="108" rx="6" fill="#F1EFE8" stroke="#534AB7" stroke-width="0.8"/>
+<text class="tt"  x="688" y="606" text-anchor="middle" dominant-baseline="central" fill="#534AB7">forecast_vibe</text>
+<text class="st"  x="688" y="620" text-anchor="middle" dominant-baseline="central" fill="#534AB7">(bridge)</text>
+<line x1="628" y1="628" x2="748" y2="628" stroke="#534AB7" stroke-width="0.4"/>
+<text class="st" x="688" y="642" text-anchor="middle" dominant-baseline="central" fill="#444">FK: forecast_id</text>
+<text class="st" x="688" y="658" text-anchor="middle" dominant-baseline="central" fill="#444">FK: vibe_id</text>
+<text class="st" x="688" y="674" text-anchor="middle" dominant-baseline="central" fill="#444">FK: fit_id</text>
+<text class="st" x="688" y="690" text-anchor="middle" dominant-baseline="central" fill="#534AB7">3 foreign keys</text>
+
+<!-- FK reference arrows removed — see ERD for FK relationships -->
+
+<!-- ─────────────────────────────────────────
+     6. EXPORT TO CSV
+───────────────────────────────────────── -->
+
+<!-- down arrows from schema to export -->
+<line x1="390" y1="700" x2="390" y2="830" stroke="#888780" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+<text class="lbl" x="398" y="768">all tables read back via SQLAlchemy</text>
+
+<rect x="120" y="830" width="540" height="148" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.8"/>
+<text class="tt" x="390" y="854" text-anchor="middle" dominant-baseline="central" fill="#27500A">Export to CSV — written to data/ directory</text>
+<line x1="120" y1="866" x2="660" y2="866" stroke="#3B6D11" stroke-width="0.4"/>
+
+<!-- DB docs column -->
+<text class="st" x="230" y="884" text-anchor="middle" dominant-baseline="central" fill="#854F0B">DB Documentation Only</text>
+<text class="st" x="230" y="902" text-anchor="middle" dominant-baseline="central" fill="#444">weather_forecast.csv</text>
+<text class="st" x="230" y="918" text-anchor="middle" dominant-baseline="central" fill="#444">forecast_vibe.csv</text>
+
+<!-- divider -->
+<line x1="390" y1="872" x2="390" y2="972" stroke="#3B6D11" stroke-width="0.4" stroke-dasharray="3 2"/>
+
+<!-- Power BI column -->
+<text class="st" x="530" y="884" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">Power BI Imports (3 files)</text>
+<text class="st" x="530" y="902" text-anchor="middle" dominant-baseline="central" fill="#444">vibe_dimension.csv — dimension</text>
+<text class="st" x="530" y="918" text-anchor="middle" dominant-baseline="central" fill="#444">fit_recommendations.csv — dimension</text>
+
+<!-- forecast_fits highlighted -->
+<rect x="140" y="934" width="500" height="36" rx="6" fill="#B8DFA0" stroke="#3B6D11" stroke-width="1"/>
+<text class="tt" x="390" y="956" text-anchor="middle" dominant-baseline="central" fill="#173404">forecast_fits.csv — PRIMARY POWER BI FACT TABLE</text>
+<text class="st" x="390" y="970" text-anchor="middle" dominant-baseline="central" fill="#27500A">forecast_fits_id (PK)  |  vibe_id (FK)  |  fit_id (FK)  |  all metrics + vibe + fit fields  |  7 rows</text>
+
+<!-- ─────────────────────────────────────────
+     7. ANALYTICS — POWER BI STAR SCHEMA
+───────────────────────────────────────── -->
+<line x1="390" y1="985" x2="390" y2="1016" stroke="#3B6D11" stroke-width="1.5" fill="none" marker-end="url(#arrg)"/>
+
+<rect x="120" y="1016" width="540" height="126" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text class="tt" x="390" y="1040" text-anchor="middle" dominant-baseline="central" fill="#712B13">Power BI Dashboard — Star Schema</text>
+<line x1="120" y1="1052" x2="660" y2="1052" stroke="#993C1D" stroke-width="0.4"/>
+
+<!-- 3 table boxes inside -->
+<!-- fact -->
+<rect x="280" y="1060" width="220" height="72" rx="5" fill="#B8DFA0" stroke="#3B6D11" stroke-width="0.8"/>
+<text class="tt" x="390" y="1078" text-anchor="middle" dominant-baseline="central" fill="#173404">forecast_fits (fact)</text>
+<text class="st" x="390" y="1096" text-anchor="middle" dominant-baseline="central" fill="#173404">PK, vibe_id FK, fit_id FK</text>
+<text class="st" x="390" y="1112" text-anchor="middle" dominant-baseline="central" fill="#27500A">7 rows — current forecast</text>
+
+<!-- vibe dim -->
+<rect x="136" y="1068" width="130" height="56" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+<text class="tt" x="201" y="1088" text-anchor="middle" dominant-baseline="central" fill="#085041">vibe_dimension</text>
+<text class="st" x="201" y="1106" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">PK: vibe_id — 11 rows</text>
+<line x1="266" y1="1096" x2="280" y2="1096" stroke="#3B6D11" stroke-width="1.2" fill="none" marker-end="url(#arrg)"/>
+<text class="lbl" x="270" y="1090" text-anchor="middle" fill="#3B6D11">1:*</text>
+
+<!-- fit dim -->
+<rect x="514" y="1068" width="130" height="56" rx="5" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+<text class="tt" x="579" y="1082" text-anchor="middle" dominant-baseline="central" fill="#412402">fit_recs</text>
+<text class="st" x="579" y="1098" text-anchor="middle" dominant-baseline="central" fill="#854F0B">PK: fit_id</text>
+<text class="st" x="579" y="1114" text-anchor="middle" dominant-baseline="central" fill="#854F0B">11 rows</text>
+<line x1="514" y1="1096" x2="500" y2="1096" stroke="#3B6D11" stroke-width="1.2" fill="none" marker-end="url(#arrg)"/>
+<text class="lbl" x="508" y="1090" text-anchor="middle" fill="#3B6D11">1:*</text>
+
+<!-- ─────────────────────────────────────────
+     DAILY REFRESH LOOP
+───────────────────────────────────────── -->
+<path d="M120 1079 Q50 1079 50 530 Q50 71 180 71" fill="none" stroke="#888780" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+<text class="lbl" x="42" y="580" fill="#888780" transform="rotate(-90,42,580)">Daily refresh — Task Scheduler or manual re-run</text>
+
+<!-- ─────────────────────────────────────────
+     LEGEND
+───────────────────────────────────────── -->
+<rect x="120" y="1154" width="540" height="22" rx="5" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+<text class="lbl" x="180" y="1168" dominant-baseline="central" fill="#5F5E5A">── solid arrow: data flow</text>
+<text class="lbl" x="340" y="1168" dominant-baseline="central" fill="#5F5E5A">- - dashed arrow: FK reference / refresh loop</text>
+<text class="lbl" x="570" y="1168" dominant-baseline="central" fill="#3B6D11" font-weight="600">green: star schema</text>
+
+</svg>
+</body>
+</html>

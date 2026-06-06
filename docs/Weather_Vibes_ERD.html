@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Vibes — Relational Data Model ERD</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px 60px;
+    }
+    h1 { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; text-align: center; }
+    p.sub { font-size: 13px; color: #6b6b6b; margin-bottom: 36px; text-align: center; }
+    .section-title {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; text-align: center;
+      margin: 32px 0 16px; color: #444;
+    }
+    .divider {
+      width: 100%; max-width: 960px; border: none;
+      border-top: 1.5px dashed #ccc; margin: 40px 0 8px;
+    }
+    svg { max-width: 960px; width: 100%; display: block; margin: 0 auto; }
+    .tbl-header { font-size: 12px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .tbl-row    { font-size: 10.5px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .tbl-key    { font-size: 10px; font-weight: 700; font-family: "Courier New", monospace; }
+    .rel-label  { font-size: 10px; fill: #888780; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .legend-text { font-size: 10px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  </style>
+</head>
+<body>
+  <h1>Weather Vibes — Relational Data Model</h1>
+  <p class="sub">Entity Relationship Diagram — SQLite via SQLAlchemy &nbsp;|&nbsp; Developer: Kerry Basham</p>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 1: NORMALIZED DATABASE SCHEMA
+  ═══════════════════════════════════════ -->
+  <div class="section-title" style="color:#534AB7">Section 1 — Normalized Database Schema (weather.db)</div>
+
+  <svg viewBox="0 0 960 560" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+
+    <!-- ── weather_forecast (top-left) ── -->
+    <rect x="20" y="20" width="230" height="30" rx="6" fill="#185FA5"/>
+    <text class="tbl-header" x="135" y="40" text-anchor="middle" dominant-baseline="central" fill="#fff">weather_forecast</text>
+    <rect x="20" y="50" width="230" height="230" rx="0" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+    <rect x="20" y="46" width="230" height="234" rx="6" fill="none" stroke="#185FA5" stroke-width="0.8"/>
+    <!-- PK -->
+    <rect x="21" y="51" width="228" height="22" fill="#B5D4F4"/>
+    <text class="tbl-key" x="34" y="62" dominant-baseline="central" fill="#0C447C">PK</text>
+    <text class="tbl-row" x="62" y="62" dominant-baseline="central" fill="#0C447C">forecast_id</text>
+    <text class="tbl-row" x="244" y="62" text-anchor="end" dominant-baseline="central" fill="#185FA5">INTEGER</text>
+    <!-- rows -->
+    <line x1="20" y1="73" x2="250" y2="73" stroke="#185FA5" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="84" dominant-baseline="central" fill="#0C447C">date</text>
+    <text class="tbl-row" x="244" y="84" text-anchor="end" dominant-baseline="central" fill="#185FA5">TEXT</text>
+    <line x1="20" y1="95" x2="250" y2="95" stroke="#185FA5" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="106" dominant-baseline="central" fill="#0C447C">apparent_temperature_max</text>
+    <text class="tbl-row" x="244" y="106" text-anchor="end" dominant-baseline="central" fill="#185FA5">INTEGER</text>
+    <line x1="20" y1="117" x2="250" y2="117" stroke="#185FA5" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="128" dominant-baseline="central" fill="#0C447C">apparent_temperature_min</text>
+    <text class="tbl-row" x="244" y="128" text-anchor="end" dominant-baseline="central" fill="#185FA5">INTEGER</text>
+    <line x1="20" y1="139" x2="250" y2="139" stroke="#185FA5" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="150" dominant-baseline="central" fill="#0C447C">precipitation_sum</text>
+    <text class="tbl-row" x="244" y="150" text-anchor="end" dominant-baseline="central" fill="#185FA5">REAL</text>
+    <line x1="20" y1="161" x2="250" y2="161" stroke="#185FA5" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="172" dominant-baseline="central" fill="#0C447C">precipitation_hours</text>
+    <text class="tbl-row" x="244" y="172" text-anchor="end" dominant-baseline="central" fill="#185FA5">REAL</text>
+    <line x1="20" y1="183" x2="250" y2="183" stroke="#185FA5" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="194" dominant-baseline="central" fill="#0C447C">wind_speed_10m_max</text>
+    <text class="tbl-row" x="244" y="194" text-anchor="end" dominant-baseline="central" fill="#185FA5">REAL</text>
+    <line x1="20" y1="205" x2="250" y2="205" stroke="#185FA5" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="216" dominant-baseline="central" fill="#0C447C">temp_range_f</text>
+    <text class="tbl-row" x="244" y="216" text-anchor="end" dominant-baseline="central" fill="#185FA5">INTEGER</text>
+    <line x1="20" y1="227" x2="250" y2="227" stroke="#185FA5" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="238" dominant-baseline="central" fill="#0C447C">weather_vibe</text>
+    <text class="tbl-row" x="244" y="238" text-anchor="end" dominant-baseline="central" fill="#185FA5">TEXT</text>
+
+    <!-- ── vibe_dimension (top-right) ── -->
+    <rect x="710" y="20" width="230" height="30" rx="6" fill="#0F6E56"/>
+    <text class="tbl-header" x="825" y="40" text-anchor="middle" dominant-baseline="central" fill="#fff">vibe_dimension</text>
+    <rect x="710" y="50" width="230" height="142" rx="0" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+    <rect x="710" y="46" width="230" height="146" rx="6" fill="none" stroke="#0F6E56" stroke-width="0.8"/>
+    <rect x="711" y="51" width="228" height="22" fill="#9FE1CB"/>
+    <text class="tbl-key" x="724" y="62" dominant-baseline="central" fill="#085041">PK</text>
+    <text class="tbl-row" x="752" y="62" dominant-baseline="central" fill="#085041">vibe_id</text>
+    <text class="tbl-row" x="934" y="62" text-anchor="end" dominant-baseline="central" fill="#0F6E56">INTEGER</text>
+    <line x1="710" y1="73" x2="940" y2="73" stroke="#0F6E56" stroke-width="0.4"/>
+    <text class="tbl-row" x="724" y="84" dominant-baseline="central" fill="#085041">vibe_name</text>
+    <text class="tbl-row" x="934" y="84" text-anchor="end" dominant-baseline="central" fill="#0F6E56">TEXT UNIQUE</text>
+    <line x1="710" y1="95" x2="940" y2="95" stroke="#0F6E56" stroke-width="0.4"/>
+    <text class="tbl-row" x="724" y="106" dominant-baseline="central" fill="#085041">vibe_description</text>
+    <text class="tbl-row" x="934" y="106" text-anchor="end" dominant-baseline="central" fill="#0F6E56">TEXT</text>
+    <line x1="710" y1="117" x2="940" y2="117" stroke="#0F6E56" stroke-width="0.4"/>
+    <text class="tbl-row" x="724" y="128" dominant-baseline="central" fill="#085041">vibe_parameters</text>
+    <text class="tbl-row" x="934" y="128" text-anchor="end" dominant-baseline="central" fill="#0F6E56">TEXT</text>
+    <line x1="710" y1="139" x2="940" y2="139" stroke="#0F6E56" stroke-width="0.4"/>
+    <text class="tbl-row" x="724" y="150" dominant-baseline="central" fill="#085041">vibe_emoji</text>
+    <text class="tbl-row" x="934" y="150" text-anchor="end" dominant-baseline="central" fill="#0F6E56">TEXT</text>
+
+    <!-- ── fit_recommendations (bottom-right) ── -->
+    <rect x="710" y="350" width="230" height="30" rx="6" fill="#854F0B"/>
+    <text class="tbl-header" x="825" y="370" text-anchor="middle" dominant-baseline="central" fill="#fff">fit_recommendations</text>
+    <rect x="710" y="380" width="230" height="142" rx="0" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+    <rect x="710" y="376" width="230" height="146" rx="6" fill="none" stroke="#854F0B" stroke-width="0.8"/>
+    <rect x="711" y="381" width="228" height="22" fill="#FAC775"/>
+    <text class="tbl-key" x="724" y="392" dominant-baseline="central" fill="#412402">PK</text>
+    <text class="tbl-row" x="752" y="392" dominant-baseline="central" fill="#412402">fit_id</text>
+    <text class="tbl-row" x="934" y="392" text-anchor="end" dominant-baseline="central" fill="#854F0B">INTEGER</text>
+    <line x1="710" y1="403" x2="940" y2="403" stroke="#854F0B" stroke-width="0.4"/>
+    <text class="tbl-row" x="724" y="414" dominant-baseline="central" fill="#412402">vibe_name</text>
+    <text class="tbl-row" x="934" y="414" text-anchor="end" dominant-baseline="central" fill="#854F0B">TEXT UNIQUE</text>
+    <line x1="710" y1="425" x2="940" y2="425" stroke="#854F0B" stroke-width="0.4"/>
+    <text class="tbl-row" x="724" y="436" dominant-baseline="central" fill="#412402">fit</text>
+    <text class="tbl-row" x="934" y="436" text-anchor="end" dominant-baseline="central" fill="#854F0B">TEXT</text>
+    <line x1="710" y1="447" x2="940" y2="447" stroke="#854F0B" stroke-width="0.4"/>
+    <text class="tbl-row" x="724" y="458" dominant-baseline="central" fill="#412402">accessory</text>
+    <text class="tbl-row" x="934" y="458" text-anchor="end" dominant-baseline="central" fill="#854F0B">TEXT</text>
+    <line x1="710" y1="469" x2="940" y2="469" stroke="#854F0B" stroke-width="0.4"/>
+    <text class="tbl-row" x="724" y="480" dominant-baseline="central" fill="#412402">fit_emoji</text>
+    <text class="tbl-row" x="934" y="480" text-anchor="end" dominant-baseline="central" fill="#854F0B">TEXT</text>
+
+    <!-- ── forecast_vibe bridge (center) ── -->
+    <rect x="370" y="220" width="220" height="30" rx="6" fill="#534AB7"/>
+    <text class="tbl-header" x="480" y="240" text-anchor="middle" dominant-baseline="central" fill="#fff">forecast_vibe (bridge)</text>
+    <rect x="370" y="250" width="220" height="106" rx="0" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+    <rect x="370" y="246" width="220" height="110" rx="6" fill="none" stroke="#534AB7" stroke-width="0.8"/>
+    <rect x="371" y="251" width="218" height="22" fill="#CECBF6"/>
+    <text class="tbl-key" x="384" y="262" dominant-baseline="central" fill="#26215C">FK</text>
+    <text class="tbl-row" x="410" y="262" dominant-baseline="central" fill="#26215C">forecast_id</text>
+    <text class="tbl-row" x="584" y="262" text-anchor="end" dominant-baseline="central" fill="#534AB7">INTEGER</text>
+    <line x1="370" y1="273" x2="590" y2="273" stroke="#534AB7" stroke-width="0.4"/>
+    <rect x="371" y="274" width="218" height="22" fill="#CECBF6"/>
+    <text class="tbl-key" x="384" y="285" dominant-baseline="central" fill="#26215C">FK</text>
+    <text class="tbl-row" x="410" y="285" dominant-baseline="central" fill="#26215C">vibe_id</text>
+    <text class="tbl-row" x="584" y="285" text-anchor="end" dominant-baseline="central" fill="#534AB7">INTEGER</text>
+    <line x1="370" y1="296" x2="590" y2="296" stroke="#534AB7" stroke-width="0.4"/>
+    <rect x="371" y="297" width="218" height="22" fill="#CECBF6"/>
+    <text class="tbl-key" x="384" y="308" dominant-baseline="central" fill="#26215C">FK</text>
+    <text class="tbl-row" x="410" y="308" dominant-baseline="central" fill="#26215C">fit_id</text>
+    <text class="tbl-row" x="584" y="308" text-anchor="end" dominant-baseline="central" fill="#534AB7">INTEGER</text>
+    <line x1="370" y1="319" x2="590" y2="319" stroke="#534AB7" stroke-width="0.4"/>
+    <text class="tbl-row" x="480" y="340" text-anchor="middle" dominant-baseline="central" fill="#534AB7">3 foreign keys</text>
+
+    <!-- ── Relationship lines ── -->
+    <!-- weather_forecast → forecast_vibe (forecast_id) -->
+    <path d="M250 135 L310 135 L310 262 L370 262" fill="none" stroke="#888780" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr1)"/>
+    <text class="rel-label" x="254" y="130">1</text>
+    <text class="rel-label" x="353" y="258">*</text>
+
+    <!-- vibe_dimension → forecast_vibe (vibe_id) -->
+    <path d="M710 135 L650 135 L650 285 L590 285" fill="none" stroke="#888780" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr1)"/>
+    <text class="rel-label" x="694" y="130">1</text>
+    <text class="rel-label" x="592" y="281">*</text>
+
+    <!-- fit_recommendations → forecast_vibe (fit_id) -->
+    <path d="M710 415 L650 415 L650 308 L590 308" fill="none" stroke="#888780" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr1)"/>
+    <text class="rel-label" x="694" y="411">1</text>
+    <text class="rel-label" x="592" y="304">*</text>
+
+    <!-- Legend -->
+    <rect x="20" y="490" width="260" height="56" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+    <text class="legend-text" style="font-weight:700" x="34" y="507" fill="#2C2C2A">Legend</text>
+    <line x1="34" y1="522" x2="70" y2="522" stroke="#888780" stroke-width="1.2" stroke-dasharray="5 3"/>
+    <text class="legend-text" x="76" y="526" fill="#5F5E5A">One-to-Many FK relationship</text>
+    <rect x="34" y="532" width="10" height="10" fill="#B5D4F4" stroke="#185FA5" stroke-width="0.5"/>
+    <text class="legend-text" x="50" y="539" fill="#5F5E5A">PK = Primary Key</text>
+    <rect x="140" y="532" width="10" height="10" fill="#CECBF6" stroke="#534AB7" stroke-width="0.5"/>
+    <text class="legend-text" x="156" y="539" fill="#5F5E5A">FK = Foreign Key</text>
+  </svg>
+
+  <!-- ═══════════════════════════════════════
+       DIVIDER
+  ═══════════════════════════════════════ -->
+  <hr class="divider"/>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 2: POWER BI STAR SCHEMA
+  ═══════════════════════════════════════ -->
+  <div class="section-title" style="color:#3B6D11">Section 2 — Power BI Star Schema (forecast_fits.csv)</div>
+
+  <svg viewBox="0 0 960 380" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="#3B6D11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+
+    <!-- ── forecast_fits FACT (center) ── -->
+    <rect x="330" y="60" width="300" height="30" rx="6" fill="#3B6D11"/>
+    <text class="tbl-header" x="480" y="80" text-anchor="middle" dominant-baseline="central" fill="#fff">forecast_fits  —  FACT TABLE</text>
+    <rect x="330" y="90" width="300" height="250" rx="0" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.8"/>
+    <rect x="330" y="86" width="300" height="254" rx="6" fill="none" stroke="#3B6D11" stroke-width="0.8"/>
+    <!-- PK -->
+    <rect x="331" y="91" width="298" height="22" fill="#B8DFA0"/>
+    <text class="tbl-key" x="344" y="102" dominant-baseline="central" fill="#173404">PK</text>
+    <text class="tbl-row" x="372" y="102" dominant-baseline="central" fill="#173404">forecast_fits_id</text>
+    <text class="tbl-row" x="624" y="102" text-anchor="end" dominant-baseline="central" fill="#3B6D11">INTEGER</text>
+    <!-- FKs -->
+    <line x1="330" y1="113" x2="630" y2="113" stroke="#3B6D11" stroke-width="0.4"/>
+    <rect x="331" y="114" width="298" height="22" fill="#D4EDDA"/>
+    <text class="tbl-key" x="344" y="125" dominant-baseline="central" fill="#173404">FK</text>
+    <text class="tbl-row" x="372" y="125" dominant-baseline="central" fill="#173404">vibe_id</text>
+    <text class="tbl-row" x="624" y="125" text-anchor="end" dominant-baseline="central" fill="#3B6D11">INTEGER</text>
+    <line x1="330" y1="136" x2="630" y2="136" stroke="#3B6D11" stroke-width="0.4"/>
+    <rect x="331" y="137" width="298" height="22" fill="#D4EDDA"/>
+    <text class="tbl-key" x="344" y="148" dominant-baseline="central" fill="#173404">FK</text>
+    <text class="tbl-row" x="372" y="148" dominant-baseline="central" fill="#173404">fit_id</text>
+    <text class="tbl-row" x="624" y="148" text-anchor="end" dominant-baseline="central" fill="#3B6D11">INTEGER</text>
+    <!-- data columns -->
+    <line x1="330" y1="159" x2="630" y2="159" stroke="#3B6D11" stroke-width="0.4"/>
+    <text class="tbl-row" x="344" y="170" dominant-baseline="central" fill="#173404">date</text>
+    <line x1="330" y1="181" x2="630" y2="181" stroke="#3B6D11" stroke-width="0.4"/>
+    <text class="tbl-row" x="344" y="192" dominant-baseline="central" fill="#173404">apparent_temperature_max / min</text>
+    <line x1="330" y1="203" x2="630" y2="203" stroke="#3B6D11" stroke-width="0.4"/>
+    <text class="tbl-row" x="344" y="214" dominant-baseline="central" fill="#173404">temp_range_f</text>
+    <line x1="330" y1="225" x2="630" y2="225" stroke="#3B6D11" stroke-width="0.4"/>
+    <text class="tbl-row" x="344" y="236" dominant-baseline="central" fill="#173404">precipitation_sum / hours</text>
+    <line x1="330" y1="247" x2="630" y2="247" stroke="#3B6D11" stroke-width="0.4"/>
+    <text class="tbl-row" x="344" y="258" dominant-baseline="central" fill="#173404">wind_speed_10m_max</text>
+    <line x1="330" y1="269" x2="630" y2="269" stroke="#3B6D11" stroke-width="0.4"/>
+    <text class="tbl-row" x="344" y="280" dominant-baseline="central" fill="#173404">weather_vibe, vibe_emoji, vibe_description</text>
+    <line x1="330" y1="291" x2="630" y2="291" stroke="#3B6D11" stroke-width="0.4"/>
+    <text class="tbl-row" x="344" y="302" dominant-baseline="central" fill="#173404">fit, accessory, fit_emoji</text>
+    <line x1="330" y1="313" x2="630" y2="313" stroke="#3B6D11" stroke-width="0.4"/>
+    <text class="tbl-row" x="480" y="330" text-anchor="middle" dominant-baseline="central" fill="#3B6D11">7 rows — current forecast only</text>
+
+    <!-- ── vibe_dimension DIM (left) ── -->
+    <rect x="20" y="100" width="240" height="30" rx="6" fill="#0F6E56"/>
+    <text class="tbl-header" x="140" y="120" text-anchor="middle" dominant-baseline="central" fill="#fff">vibe_dimension  —  DIM</text>
+    <rect x="20" y="130" width="240" height="120" rx="0" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+    <rect x="20" y="126" width="240" height="124" rx="6" fill="none" stroke="#0F6E56" stroke-width="0.8"/>
+    <rect x="21" y="131" width="238" height="22" fill="#9FE1CB"/>
+    <text class="tbl-key" x="34" y="142" dominant-baseline="central" fill="#085041">PK</text>
+    <text class="tbl-row" x="62" y="142" dominant-baseline="central" fill="#085041">vibe_id</text>
+    <line x1="20" y1="153" x2="260" y2="153" stroke="#0F6E56" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="164" dominant-baseline="central" fill="#085041">vibe_name</text>
+    <line x1="20" y1="175" x2="260" y2="175" stroke="#0F6E56" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="186" dominant-baseline="central" fill="#085041">vibe_description</text>
+    <line x1="20" y1="197" x2="260" y2="197" stroke="#0F6E56" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="208" dominant-baseline="central" fill="#085041">vibe_parameters</text>
+    <line x1="20" y1="219" x2="260" y2="219" stroke="#0F6E56" stroke-width="0.4"/>
+    <text class="tbl-row" x="34" y="230" dominant-baseline="central" fill="#085041">vibe_emoji</text>
+    <text class="tbl-row" x="140" y="248" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">11 rows — all vibes</text>
+
+    <!-- ── fit_recommendations DIM (right) ── -->
+    <rect x="700" y="100" width="240" height="30" rx="6" fill="#854F0B"/>
+    <text class="tbl-header" x="820" y="120" text-anchor="middle" dominant-baseline="central" fill="#fff">fit_recommendations  —  DIM</text>
+    <rect x="700" y="130" width="240" height="120" rx="0" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.8"/>
+    <rect x="700" y="126" width="240" height="124" rx="6" fill="none" stroke="#854F0B" stroke-width="0.8"/>
+    <rect x="701" y="131" width="238" height="22" fill="#FAC775"/>
+    <text class="tbl-key" x="714" y="142" dominant-baseline="central" fill="#412402">PK</text>
+    <text class="tbl-row" x="742" y="142" dominant-baseline="central" fill="#412402">fit_id</text>
+    <line x1="700" y1="153" x2="940" y2="153" stroke="#854F0B" stroke-width="0.4"/>
+    <text class="tbl-row" x="714" y="164" dominant-baseline="central" fill="#412402">vibe_name</text>
+    <line x1="700" y1="175" x2="940" y2="175" stroke="#854F0B" stroke-width="0.4"/>
+    <text class="tbl-row" x="714" y="186" dominant-baseline="central" fill="#412402">fit</text>
+    <line x1="700" y1="197" x2="940" y2="197" stroke="#854F0B" stroke-width="0.4"/>
+    <text class="tbl-row" x="714" y="208" dominant-baseline="central" fill="#412402">accessory</text>
+    <line x1="700" y1="219" x2="940" y2="219" stroke="#854F0B" stroke-width="0.4"/>
+    <text class="tbl-row" x="714" y="230" dominant-baseline="central" fill="#412402">fit_emoji</text>
+    <text class="tbl-row" x="820" y="248" text-anchor="middle" dominant-baseline="central" fill="#854F0B">11 rows — all fits</text>
+
+    <!-- ── Relationships ── -->
+    <!-- vibe_dimension → forecast_fits on vibe_id -->
+    <path d="M260 190 L330 145" fill="none" stroke="#3B6D11" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <text class="rel-label" x="264" y="186" fill="#3B6D11">1</text>
+    <text class="rel-label" x="318" y="142" fill="#3B6D11">*</text>
+
+    <!-- fit_recommendations → forecast_fits on fit_id -->
+    <path d="M700 190 L630 148" fill="none" stroke="#3B6D11" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <text class="rel-label" x="688" y="186" fill="#3B6D11">1</text>
+    <text class="rel-label" x="632" y="144" fill="#3B6D11">*</text>
+
+    <!-- Relationship labels -->
+    <text class="rel-label" x="270" y="158" fill="#3B6D11" font-style="italic">vibe_id</text>
+    <text class="rel-label" x="668" y="158" fill="#3B6D11" font-style="italic">fit_id</text>
+
+    <!-- Note -->
+    <rect x="330" y="10" width="300" height="40" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+    <text class="legend-text" x="480" y="24" text-anchor="middle" fill="#5F5E5A" font-weight="600">Power BI imports 3 files only</text>
+    <text class="legend-text" x="480" y="40" text-anchor="middle" fill="#5F5E5A">forecast_fits.csv  |  vibe_dimension.csv  |  fit_recommendations.csv</text>
+  </svg>
+
+</body>
+</html>
