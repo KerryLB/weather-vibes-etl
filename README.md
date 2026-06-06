@@ -225,11 +225,5 @@ The Power BI dashboard communicates the following business insights:
 - **Fit recommendations table** — emoji, vibe name, outfit, and accessory for each day
 - **Vibe slicer** — filters all visuals dynamically by weather vibe
 
-### Dashboard screenshots
-
-*Screenshot 1: Full 7-day dashboard view*
-*Screenshot 2: Dashboard filtered to Lo-Fi Chill Day via the Vibe slicer*
-
-
-#   w e a t h e r - v i b e s - e t l  
+ 
  
