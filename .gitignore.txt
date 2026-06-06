@@ -1,0 +1,19 @@
+# -----------------------------------------------
+# Weather Vibes ETL — .gitignore
+# -----------------------------------------------
+
+# Data directory — all pipeline outputs go here.
+# CSVs, database, and cache are generated on each run
+# and should not be committed to the repository.
+data/
+
+# Virtual environment
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment variables (if added later)
+.env
