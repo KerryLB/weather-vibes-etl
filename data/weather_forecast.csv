@@ -1,8 +1,0 @@
-forecast_id,date,apparent_temperature_max,apparent_temperature_min,precipitation_sum,precipitation_hours,wind_speed_10m_max,temp_range_f,weather_vibe
-1,2026-06-06 00:00:00.000000,92,71,0.0,0.0,10.2,21,Offensively Hot
-2,2026-06-07 00:00:00.000000,98,72,0.0,0.0,8.6,26,Offensively Hot
-3,2026-06-08 00:00:00.000000,89,75,0.13,5.0,10.8,14,Hot Mess Express
-4,2026-06-09 00:00:00.000000,88,73,0.11,9.0,9.8,15,Hot Mess Express
-5,2026-06-10 00:00:00.000000,97,77,0.36,11.0,9.5,20,Hot Mess Express
-6,2026-06-11 00:00:00.000000,98,79,0.02,3.0,7.9,19,Hot Mess Express
-7,2026-06-12 00:00:00.000000,97,81,0.02,3.0,9.1,16,Hot Mess Express
