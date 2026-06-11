@@ -1,0 +1,6 @@
+vibe_id,vibe_name,vibe_description,vibe_parameters,vibe_emoji
+1,Offensively Hot,"The sun is too close and too confident. Hot, dry, and absolutely relentless. Hydration is not optional.","Max temp >= 90F, no meaningful rain, wind < 25 mph.",🥵
+2,Lo-Fi Chill Day,The rain showed up but forgot to bring the drama. It is the kind of drizzly day that was made for staying in or pretending you enjoy walking in light rain.,"Meaningful rain (precip >= 0.10 in or precip hours >= 2), wind < 25 mph, and max temp < 86F.",🌧️
+3,Almost Too Much,Warm enough to question every decision you made getting dressed. Not quite suffering but you are aware of the sun at all times.,"Max temp 86 to 89F, no meaningful rain, wind < 25 mph.",🫠
+4,Hot Mess Express,"Hot, humid, and raining at some point. Nobody asked for this combination and yet here we are. You will be damp from both directions and there is nothing you can do about it.","Meaningful rain (precip >= 0.10 in or precip hours >= 2), wind < 25 mph, and max temp >= 86F.",🌧️🥵
+5,Main Character Energy,"The weather is doing everything right and so are you. Warm, dry, breezy enough to feel alive but not enough to ruin anything. Go outside.","Max temp 72 to 85F, no meaningful rain, wind < 15 mph.",😎

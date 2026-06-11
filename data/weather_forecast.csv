@@ -1,0 +1,8 @@
+forecast_id,date,apparent_temperature_max,apparent_temperature_min,precipitation_sum,precipitation_hours,wind_speed_10m_max,temp_range_f,weather_vibe
+1,2026-06-10 00:00:00.000000,98,81,0.0,0.0,10.7,17,Offensively Hot
+2,2026-06-11 00:00:00.000000,97,77,0.0,0.0,11.7,20,Offensively Hot
+3,2026-06-12 00:00:00.000000,83,71,0.05,2.0,7.8,12,Lo-Fi Chill Day
+4,2026-06-13 00:00:00.000000,89,66,0.0,0.0,7.6,23,Almost Too Much
+5,2026-06-14 00:00:00.000000,88,72,0.17,6.0,8.9,16,Hot Mess Express
+6,2026-06-15 00:00:00.000000,76,57,0.34,15.0,12.2,19,Lo-Fi Chill Day
+7,2026-06-16 00:00:00.000000,78,56,0.0,0.0,6.0,22,Main Character Energy
